@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DnD 跑團音樂庫 | LMoP & DoIP</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>🎲 DnD 跑團音樂庫</h1>
+    <p>凡戴爾的失落礦坑 · 冰塔峰之龍</p>
+    <div class="search-bar">
+      <input type="text" id="search" placeholder="搜尋曲目、地點、情緒...">
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Categories or track list will be injected here -->
+  </main>
+
+  <div class="player" id="player">
+    <div class="player-info">
+      <div class="now-playing" id="now-playing">選擇音樂開始播放</div>
+    </div>
+    <div class="player-controls">
+      <button id="stop-btn">停止</button>
+      <label><input type="checkbox" id="loop"> 循環</label>
+    </div>
+    <div id="youtube-container"></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
