@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DnD 跑團音樂庫 | LMoP & DoIP</title>
 <link rel="stylesheet" href="styles.css">
+<script src="https://www.youtube.com/iframe_api"></script>
 </head>
 <body>
 <div class="app">
@@ -30,6 +31,10 @@
     <div class="player-controls">
       <button id="stop-btn">停止</button>
       <label><input type="checkbox" id="loop"> 循環</label>
+      <div class="volume-control">
+        <span>🔊</span>
+        <input type="range" id="volume" min="0" max="100" value="70">
+      </div>
     </div>
     <div id="youtube-container"></div>
   </div>
