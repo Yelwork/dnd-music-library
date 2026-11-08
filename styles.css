@@ -20,7 +20,7 @@ body {
 .app {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px 16px 140px;
+  padding: 20px 16px 200px;
 }
 
 header {
@@ -156,6 +156,15 @@ header p {
   background: #e0b84a;
 }
 
+.track .amb-btn {
+  background: #3a5a40;
+  color: #e8e0d5;
+}
+
+.track .amb-btn:hover {
+  background: #4a7a55;
+}
+
 .back-btn {
   background: transparent;
   border: 1px solid var(--border);
@@ -173,11 +182,25 @@ header p {
   right: 0;
   background: #151310;
   border-top: 1px solid var(--border);
-  padding: 12px 16px;
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 100;
+}
+
+.player-section {
   display: flex;
   align-items: center;
-  gap: 16px;
-  z-index: 100;
+  gap: 12px;
+}
+
+.player-label {
+  font-size: 0.75rem;
+  color: var(--accent);
+  font-weight: 600;
+  min-width: 42px;
+  text-align: center;
 }
 
 .player-info {
@@ -186,7 +209,7 @@ header p {
 }
 
 .now-playing {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -195,7 +218,7 @@ header p {
 .player-controls {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
@@ -215,20 +238,20 @@ header p {
 }
 
 .volume-control input[type=range] {
-  width: 90px;
+  width: 80px;
   accent-color: var(--accent);
 }
 
-#youtube-container {
-  width: 280px;
-  height: 60px;
+#youtube-container, #youtube-container-amb {
+  width: 200px;
+  height: 48px;
   background: #000;
   border-radius: 6px;
   overflow: hidden;
   flex-shrink: 0;
 }
 
-#youtube-container iframe {
+#youtube-container iframe, #youtube-container-amb iframe {
   width: 100%;
   height: 100%;
   border: none;
@@ -241,12 +264,12 @@ header p {
 }
 
 @media (max-width: 700px) {
-  .player {
+  .player-section {
     flex-wrap: wrap;
   }
-  #youtube-container {
+  #youtube-container, #youtube-container-amb {
     width: 100%;
-    height: 50px;
+    height: 40px;
   }
   .categories {
     grid-template-columns: 1fr 1fr;
@@ -258,5 +281,8 @@ header p {
     padding: 12px 14px;
     font-size: 0.95rem;
     min-width: 90px;
+  }
+  .app {
+    padding-bottom: 240px;
   }
 }
