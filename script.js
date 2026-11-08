@@ -78,8 +78,6 @@ let currentTrack = null;
 let currentTrackAmb = null;
 let currentVolume = parseInt(localStorage.getItem("dnd-volume") || "70");
 let currentVolumeAmb = parseInt(localStorage.getItem("dnd-volume-amb") || "40");
-let fadeInterval = null;
-let fadeIntervalAmb = null;
 
 const main = document.getElementById("main");
 const searchInput = document.getElementById("search");
@@ -208,7 +206,7 @@ function getTracksForCategory(catId) {
 }
 
 function renderTrackList(tracks, title, showBack = true) {
-  let html = showBack ? `<button class="back-btn">← 返回</button>` : "";
+  let html = showBack ? `<button class="back-btn" id="category-back-btn">← 返回</button>` : "";
   html += `<h2 class="section-title">${title}</h2><div class="tracks">`;
 
   if (tracks.length === 0) {
@@ -233,8 +231,12 @@ function renderTrackList(tracks, title, showBack = true) {
   html += `</div>`;
   main.innerHTML = html;
 
+  // Fix: query within main so we get the correct back button
   if (showBack) {
-    document.querySelector(".back-btn").addEventListener("click", renderHome);
+    const backBtn = main.querySelector("#category-back-btn");
+    if (backBtn) {
+      backBtn.addEventListener("click", renderHome);
+    }
   }
   document.querySelectorAll(".play-btn").forEach(btn => {
     btn.addEventListener("click", () => playTrack(btn.dataset.id, false));
@@ -260,12 +262,10 @@ function playTrack(trackId, isAmbience = false) {
   const track = TRACKS.find(t => t.id === trackId);
   if (!track) return;
 
-  const player = isAmbience ? ytPlayerAmb : ytPlayer;
   const initFn = isAmbience ? initPlayerAmb : initPlayer;
   const vol = isAmbience ? currentVolumeAmb : currentVolume;
   const nowEl = isAmbience ? nowPlayingAmb : nowPlaying;
   const fadeRefObj = isAmbience ? fadeRefAmb : fadeRef;
-  const currentTrackRef = isAmbience ? "currentTrackAmb" : "currentTrack";
 
   initFn();
 
@@ -277,10 +277,12 @@ function playTrack(trackId, isAmbience = false) {
     const p = isAmbience ? ytPlayerAmb : ytPlayer;
     const loop = !isAmbience && loopCheckbox.checked;
 
+    if (!p || !p.loadVideoById) return;
+
     p.loadVideoById({ videoId: track.yt, startSeconds: 0 });
 
     setTimeout(() => {
-      if (loop) {
+      if (loop && p.loadPlaylist) {
         p.loadPlaylist([track.yt], 0, 0);
         p.setLoop(true);
       }
@@ -370,7 +372,6 @@ document.addEventListener("keydown", (e) => {
 
   const key = e.key.toLowerCase();
 
-  // Number keys for quick scenes
   const scene = QUICK_SCENES.find(s => s.key === e.key);
   if (scene) {
     e.preventDefault();
@@ -396,11 +397,9 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// YouTube API ready
 window.onYouTubeIframeAPIReady = function() {
   initPlayer();
   initPlayerAmb();
 };
 
-// Init
 renderHome();
