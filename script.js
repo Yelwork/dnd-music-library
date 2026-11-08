@@ -61,32 +61,39 @@ const CATEGORIES = [
 ];
 
 const QUICK_SCENES = [
-  { id: "tavern", label: "🍺 酒館" },
-  { id: "combat", label: "⚔️ 戰鬥" },
-  { id: "dungeon", label: "🕳️ 洞穴" },
-  { id: "travel", label: "🌲 旅行" },
-  { id: "rest", label: "🔥 休息" },
-  { id: "mountain", label: "🏔️ 山區" },
-  { id: "town", label: "🏘️ Phandalin" },
+  { id: "tavern", label: "🍺 酒館", key: "1" },
+  { id: "combat", label: "⚔️ 戰鬥", key: "2" },
+  { id: "dungeon", label: "🕳️ 洞穴", key: "3" },
+  { id: "travel", label: "🌲 旅行", key: "4" },
+  { id: "rest", label: "🔥 休息", key: "5" },
+  { id: "mountain", label: "🏔️ 山區", key: "6" },
+  { id: "town", label: "🏘️ Phandalin", key: "7" },
 ];
 
 let currentView = "home";
 let currentCategory = null;
 let ytPlayer = null;
+let ytPlayerAmb = null;
 let currentTrack = null;
+let currentTrackAmb = null;
 let currentVolume = parseInt(localStorage.getItem("dnd-volume") || "70");
+let currentVolumeAmb = parseInt(localStorage.getItem("dnd-volume-amb") || "40");
 let fadeInterval = null;
+let fadeIntervalAmb = null;
 
 const main = document.getElementById("main");
 const searchInput = document.getElementById("search");
 const nowPlaying = document.getElementById("now-playing");
+const nowPlayingAmb = document.getElementById("now-playing-amb");
 const stopBtn = document.getElementById("stop-btn");
+const stopAmbBtn = document.getElementById("stop-amb-btn");
 const loopCheckbox = document.getElementById("loop");
-const ytContainer = document.getElementById("youtube-container");
 const favBtn = document.getElementById("fav-btn");
 const volumeSlider = document.getElementById("volume");
+const volumeSliderAmb = document.getElementById("volume-amb");
 
 volumeSlider.value = currentVolume;
+volumeSliderAmb.value = currentVolumeAmb;
 
 function getFavorites() {
   return JSON.parse(localStorage.getItem("dnd-favs") || "[]");
@@ -117,44 +124,48 @@ function toggleFavorite(id) {
   }
 }
 
-function fadeVolume(targetVol, duration = 1800) {
-  if (!ytPlayer || !ytPlayer.getVolume) return;
-  if (fadeInterval) clearInterval(fadeInterval);
+function fadeVolume(player, targetVol, duration = 1800, intervalRef) {
+  if (!player || !player.getVolume) return;
+  if (intervalRef.current) clearInterval(intervalRef.current);
 
-  const startVol = ytPlayer.getVolume();
+  const startVol = player.getVolume();
   const steps = 24;
   const stepTime = duration / steps;
   const delta = (targetVol - startVol) / steps;
   let current = startVol;
   let step = 0;
 
-  fadeInterval = setInterval(() => {
+  intervalRef.current = setInterval(() => {
     step++;
     current += delta;
-    ytPlayer.setVolume(Math.max(0, Math.min(100, Math.round(current))));
+    player.setVolume(Math.max(0, Math.min(100, Math.round(current))));
     if (step >= steps) {
-      clearInterval(fadeInterval);
-      ytPlayer.setVolume(targetVol);
+      clearInterval(intervalRef.current);
+      player.setVolume(targetVol);
     }
   }, stepTime);
 }
 
+const fadeRef = { current: null };
+const fadeRefAmb = { current: null };
+
 function initPlayer() {
   if (ytPlayer) return;
   ytPlayer = new YT.Player("youtube-container", {
-    height: "60",
-    width: "280",
-    playerVars: {
-      autoplay: 0,
-      controls: 1,
-      modestbranding: 1,
-      rel: 0
-    },
-    events: {
-      onReady: () => {
-        ytPlayer.setVolume(0);
-      }
-    }
+    height: "48",
+    width: "200",
+    playerVars: { autoplay: 0, controls: 1, modestbranding: 1, rel: 0 },
+    events: { onReady: () => ytPlayer.setVolume(0) }
+  });
+}
+
+function initPlayerAmb() {
+  if (ytPlayerAmb) return;
+  ytPlayerAmb = new YT.Player("youtube-container-amb", {
+    height: "48",
+    width: "200",
+    playerVars: { autoplay: 0, controls: 1, modestbranding: 1, rel: 0 },
+    events: { onReady: () => ytPlayerAmb.setVolume(0) }
   });
 }
 
@@ -163,7 +174,7 @@ function renderHome() {
   currentCategory = null;
   let html = `<div class="quick-scenes">`;
   QUICK_SCENES.forEach(s => {
-    html += `<button class="quick-btn" data-cat="${s.id}">${s.label}</button>`;
+    html += `<button class="quick-btn" data-cat="${s.id}">${s.label} <small style="opacity:0.6">${s.key}</small></button>`;
   });
   html += `</div>`;
   html += `<h2 class="section-title">選擇場景</h2><div class="categories">`;
@@ -178,9 +189,7 @@ function renderHome() {
   main.innerHTML = html;
 
   document.querySelectorAll(".quick-btn, .category-card").forEach(el => {
-    el.addEventListener("click", () => {
-      showCategory(el.dataset.cat);
-    });
+    el.addEventListener("click", () => showCategory(el.dataset.cat));
   });
 }
 
@@ -213,9 +222,10 @@ function renderTrackList(tracks, title, showBack = true) {
             <h4>${track.title}</h4>
             <span>${track.source}</span>
           </div>
-          <div style="display:flex; gap:8px;">
+          <div style="display:flex; gap:6px;">
             <button class="fav-toggle" data-id="${track.id}" style="background:#333; color:var(--accent); border:1px solid var(--border); padding:8px 10px; border-radius:6px; cursor:pointer;">${favIcon}</button>
-            <button class="play-btn" data-id="${track.id}">播放</button>
+            <button class="play-btn" data-id="${track.id}">音樂</button>
+            <button class="amb-btn" data-id="${track.id}">環境</button>
           </div>
         </div>`;
     });
@@ -227,7 +237,10 @@ function renderTrackList(tracks, title, showBack = true) {
     document.querySelector(".back-btn").addEventListener("click", renderHome);
   }
   document.querySelectorAll(".play-btn").forEach(btn => {
-    btn.addEventListener("click", () => playTrack(btn.dataset.id));
+    btn.addEventListener("click", () => playTrack(btn.dataset.id, false));
+  });
+  document.querySelectorAll(".amb-btn").forEach(btn => {
+    btn.addEventListener("click", () => playTrack(btn.dataset.id, true));
   });
   document.querySelectorAll(".fav-toggle").forEach(btn => {
     btn.addEventListener("click", () => toggleFavorite(btn.dataset.id));
@@ -243,56 +256,69 @@ function showCategory(catId) {
   renderTrackList(tracks, title);
 }
 
-function playTrack(trackId) {
+function playTrack(trackId, isAmbience = false) {
   const track = TRACKS.find(t => t.id === trackId);
   if (!track) return;
 
-  initPlayer();
+  const player = isAmbience ? ytPlayerAmb : ytPlayer;
+  const initFn = isAmbience ? initPlayerAmb : initPlayer;
+  const vol = isAmbience ? currentVolumeAmb : currentVolume;
+  const nowEl = isAmbience ? nowPlayingAmb : nowPlaying;
+  const fadeRefObj = isAmbience ? fadeRefAmb : fadeRef;
+  const currentTrackRef = isAmbience ? "currentTrackAmb" : "currentTrack";
+
+  initFn();
 
   const doPlay = () => {
-    currentTrack = track;
-    nowPlaying.textContent = `${track.title} · ${track.source}`;
+    if (isAmbience) currentTrackAmb = track;
+    else currentTrack = track;
+    nowEl.textContent = `${track.title} · ${track.source}`;
 
-    const loop = loopCheckbox.checked ? 1 : 0;
-    ytPlayer.loadVideoById({
-      videoId: track.yt,
-      startSeconds: 0
-    });
+    const p = isAmbience ? ytPlayerAmb : ytPlayer;
+    const loop = !isAmbience && loopCheckbox.checked;
 
-    // Force loop via playlist if needed
+    p.loadVideoById({ videoId: track.yt, startSeconds: 0 });
+
     setTimeout(() => {
       if (loop) {
-        ytPlayer.loadPlaylist([track.yt], 0, 0);
-        ytPlayer.setLoop(true);
+        p.loadPlaylist([track.yt], 0, 0);
+        p.setLoop(true);
       }
     }, 300);
 
-    // Fade in
     setTimeout(() => {
-      fadeVolume(currentVolume, 1600);
+      fadeVolume(p, vol, 1600, fadeRefObj);
     }, 600);
   };
 
-  if (currentTrack && ytPlayer.getPlayerState && ytPlayer.getPlayerState() === 1) {
-    // Fade out first
-    fadeVolume(0, 1200);
+  const activeTrack = isAmbience ? currentTrackAmb : currentTrack;
+  const activePlayer = isAmbience ? ytPlayerAmb : ytPlayer;
+
+  if (activeTrack && activePlayer && activePlayer.getPlayerState && activePlayer.getPlayerState() === 1) {
+    fadeVolume(activePlayer, 0, 1200, fadeRefObj);
     setTimeout(doPlay, 1300);
   } else {
     doPlay();
   }
 }
 
-function stopPlayer() {
-  if (ytPlayer && ytPlayer.stopVideo) {
-    fadeVolume(0, 800);
+function stopPlayer(isAmbience = false) {
+  const p = isAmbience ? ytPlayerAmb : ytPlayer;
+  const nowEl = isAmbience ? nowPlayingAmb : nowPlaying;
+  const fadeRefObj = isAmbience ? fadeRefAmb : fadeRef;
+
+  if (p && p.stopVideo) {
+    fadeVolume(p, 0, 800, fadeRefObj);
     setTimeout(() => {
-      ytPlayer.stopVideo();
-      nowPlaying.textContent = "已停止";
-      currentTrack = null;
+      p.stopVideo();
+      nowEl.textContent = isAmbience ? "無環境音" : "已停止";
+      if (isAmbience) currentTrackAmb = null;
+      else currentTrack = null;
     }, 900);
   } else {
-    nowPlaying.textContent = "已停止";
-    currentTrack = null;
+    nowEl.textContent = isAmbience ? "無環境音" : "已停止";
+    if (isAmbience) currentTrackAmb = null;
+    else currentTrack = null;
   }
 }
 
@@ -313,9 +339,10 @@ function handleSearch() {
 
 // Events
 searchInput.addEventListener("input", handleSearch);
-stopBtn.addEventListener("click", stopPlayer);
+stopBtn.addEventListener("click", () => stopPlayer(false));
+stopAmbBtn.addEventListener("click", () => stopPlayer(true));
 loopCheckbox.addEventListener("change", () => {
-  if (currentTrack) playTrack(currentTrack.id);
+  if (currentTrack) playTrack(currentTrack.id, false);
 });
 favBtn.addEventListener("click", () => showCategory("favorites"));
 
@@ -323,14 +350,56 @@ volumeSlider.addEventListener("input", (e) => {
   currentVolume = parseInt(e.target.value);
   localStorage.setItem("dnd-volume", currentVolume);
   if (ytPlayer && ytPlayer.setVolume) {
-    if (fadeInterval) clearInterval(fadeInterval);
+    if (fadeRef.current) clearInterval(fadeRef.current);
     ytPlayer.setVolume(currentVolume);
+  }
+});
+
+volumeSliderAmb.addEventListener("input", (e) => {
+  currentVolumeAmb = parseInt(e.target.value);
+  localStorage.setItem("dnd-volume-amb", currentVolumeAmb);
+  if (ytPlayerAmb && ytPlayerAmb.setVolume) {
+    if (fadeRefAmb.current) clearInterval(fadeRefAmb.current);
+    ytPlayerAmb.setVolume(currentVolumeAmb);
+  }
+});
+
+// Keyboard shortcuts
+document.addEventListener("keydown", (e) => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+
+  const key = e.key.toLowerCase();
+
+  // Number keys for quick scenes
+  const scene = QUICK_SCENES.find(s => s.key === e.key);
+  if (scene) {
+    e.preventDefault();
+    showCategory(scene.id);
+    return;
+  }
+
+  if (key === " ") {
+    e.preventDefault();
+    stopPlayer(false);
+  }
+
+  if (key === "m") {
+    e.preventDefault();
+    if (ytPlayer && ytPlayer.isMuted) {
+      if (ytPlayer.isMuted()) ytPlayer.unMute();
+      else ytPlayer.mute();
+    }
+  }
+
+  if (key === "escape") {
+    renderHome();
   }
 });
 
 // YouTube API ready
 window.onYouTubeIframeAPIReady = function() {
   initPlayer();
+  initPlayerAmb();
 };
 
 // Init
