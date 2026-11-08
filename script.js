@@ -60,10 +60,22 @@ const CATEGORIES = [
   { id: "favorites", name: "我的收藏", desc: "你收藏的曲目", icon: "⭐" },
 ];
 
+const QUICK_SCENES = [
+  { id: "tavern", label: "🍺 酒館" },
+  { id: "combat", label: "⚔️ 戰鬥" },
+  { id: "dungeon", label: "🕳️ 洞穴" },
+  { id: "travel", label: "🌲 旅行" },
+  { id: "rest", label: "🔥 休息" },
+  { id: "mountain", label: "🏔️ 山區" },
+  { id: "town", label: "🏘️ Phandalin" },
+];
+
 let currentView = "home";
 let currentCategory = null;
-let player = null;
+let ytPlayer = null;
 let currentTrack = null;
+let currentVolume = parseInt(localStorage.getItem("dnd-volume") || "70");
+let fadeInterval = null;
 
 const main = document.getElementById("main");
 const searchInput = document.getElementById("search");
@@ -72,6 +84,9 @@ const stopBtn = document.getElementById("stop-btn");
 const loopCheckbox = document.getElementById("loop");
 const ytContainer = document.getElementById("youtube-container");
 const favBtn = document.getElementById("fav-btn");
+const volumeSlider = document.getElementById("volume");
+
+volumeSlider.value = currentVolume;
 
 function getFavorites() {
   return JSON.parse(localStorage.getItem("dnd-favs") || "[]");
@@ -93,7 +108,6 @@ function toggleFavorite(id) {
     favs.push(id);
   }
   saveFavorites(favs);
-  // Re-render current view if needed
   if (currentView === "category" && currentCategory === "favorites") {
     showCategory("favorites");
   } else if (currentView === "category") {
@@ -103,10 +117,56 @@ function toggleFavorite(id) {
   }
 }
 
+function fadeVolume(targetVol, duration = 1800) {
+  if (!ytPlayer || !ytPlayer.getVolume) return;
+  if (fadeInterval) clearInterval(fadeInterval);
+
+  const startVol = ytPlayer.getVolume();
+  const steps = 24;
+  const stepTime = duration / steps;
+  const delta = (targetVol - startVol) / steps;
+  let current = startVol;
+  let step = 0;
+
+  fadeInterval = setInterval(() => {
+    step++;
+    current += delta;
+    ytPlayer.setVolume(Math.max(0, Math.min(100, Math.round(current))));
+    if (step >= steps) {
+      clearInterval(fadeInterval);
+      ytPlayer.setVolume(targetVol);
+    }
+  }, stepTime);
+}
+
+function initPlayer() {
+  if (ytPlayer) return;
+  ytPlayer = new YT.Player("youtube-container", {
+    height: "60",
+    width: "280",
+    playerVars: {
+      autoplay: 0,
+      controls: 1,
+      modestbranding: 1,
+      rel: 0
+    },
+    events: {
+      onReady: () => {
+        ytPlayer.setVolume(0);
+      }
+    }
+  });
+}
+
 function renderHome() {
   currentView = "home";
   currentCategory = null;
-  let html = `<h2 class="section-title">選擇場景</h2><div class="categories">`;
+  let html = `<div class="quick-scenes">`;
+  QUICK_SCENES.forEach(s => {
+    html += `<button class="quick-btn" data-cat="${s.id}">${s.label}</button>`;
+  });
+  html += `</div>`;
+  html += `<h2 class="section-title">選擇場景</h2><div class="categories">`;
   CATEGORIES.forEach(cat => {
     html += `
       <div class="category-card" data-cat="${cat.id}">
@@ -117,9 +177,9 @@ function renderHome() {
   html += `</div>`;
   main.innerHTML = html;
 
-  document.querySelectorAll(".category-card").forEach(card => {
-    card.addEventListener("click", () => {
-      showCategory(card.dataset.cat);
+  document.querySelectorAll(".quick-btn, .category-card").forEach(el => {
+    el.addEventListener("click", () => {
+      showCategory(el.dataset.cat);
     });
   });
 }
@@ -187,22 +247,53 @@ function playTrack(trackId) {
   const track = TRACKS.find(t => t.id === trackId);
   if (!track) return;
 
-  currentTrack = track;
-  nowPlaying.textContent = `${track.title} · ${track.source}`;
+  initPlayer();
 
-  ytContainer.innerHTML = "";
+  const doPlay = () => {
+    currentTrack = track;
+    nowPlaying.textContent = `${track.title} · ${track.source}`;
 
-  const iframe = document.createElement("iframe");
-  iframe.src = `https://www.youtube.com/embed/${track.yt}?autoplay=1&loop=${loopCheckbox.checked ? 1 : 0}&playlist=${track.yt}&controls=1&modestbranding=1`;
-  iframe.allow = "autoplay; encrypted-media";
-  iframe.allowFullscreen = true;
-  ytContainer.appendChild(iframe);
+    const loop = loopCheckbox.checked ? 1 : 0;
+    ytPlayer.loadVideoById({
+      videoId: track.yt,
+      startSeconds: 0
+    });
+
+    // Force loop via playlist if needed
+    setTimeout(() => {
+      if (loop) {
+        ytPlayer.loadPlaylist([track.yt], 0, 0);
+        ytPlayer.setLoop(true);
+      }
+    }, 300);
+
+    // Fade in
+    setTimeout(() => {
+      fadeVolume(currentVolume, 1600);
+    }, 600);
+  };
+
+  if (currentTrack && ytPlayer.getPlayerState && ytPlayer.getPlayerState() === 1) {
+    // Fade out first
+    fadeVolume(0, 1200);
+    setTimeout(doPlay, 1300);
+  } else {
+    doPlay();
+  }
 }
 
 function stopPlayer() {
-  ytContainer.innerHTML = "";
-  nowPlaying.textContent = "已停止";
-  currentTrack = null;
+  if (ytPlayer && ytPlayer.stopVideo) {
+    fadeVolume(0, 800);
+    setTimeout(() => {
+      ytPlayer.stopVideo();
+      nowPlaying.textContent = "已停止";
+      currentTrack = null;
+    }, 900);
+  } else {
+    nowPlaying.textContent = "已停止";
+    currentTrack = null;
+  }
 }
 
 function handleSearch() {
@@ -227,6 +318,20 @@ loopCheckbox.addEventListener("change", () => {
   if (currentTrack) playTrack(currentTrack.id);
 });
 favBtn.addEventListener("click", () => showCategory("favorites"));
+
+volumeSlider.addEventListener("input", (e) => {
+  currentVolume = parseInt(e.target.value);
+  localStorage.setItem("dnd-volume", currentVolume);
+  if (ytPlayer && ytPlayer.setVolume) {
+    if (fadeInterval) clearInterval(fadeInterval);
+    ytPlayer.setVolume(currentVolume);
+  }
+});
+
+// YouTube API ready
+window.onYouTubeIframeAPIReady = function() {
+  initPlayer();
+};
 
 // Init
 renderHome();
