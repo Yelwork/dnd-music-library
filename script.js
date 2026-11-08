@@ -2,8 +2,13 @@ const TRACKS = [
   // 城鎮 / 酒館
   { id: "stonehill", title: "Stonehill Inn", category: "tavern", tags: ["phandalin", "tavern", "inn", "lmop", "doip"], yt: "_e_lnbX8JY0", source: "Bardify" },
   { id: "cozy-tavern", title: "Cozy Tavern", category: "tavern", tags: ["tavern", "inn", "warm"], yt: "orgikrTCKTc", source: "Bardify" },
+  { id: "wandering-bard", title: "The Wandering Bard Tavern", category: "tavern", tags: ["tavern", "inn", "bard"], yt: "HH8pp-RifzY", source: "Bardify" },
+  { id: "tavern-dance", title: "Tavern Dance", category: "tavern", tags: ["tavern", "lively", "dance"], yt: "JyyQlYRqvRs", source: "Bardify" },
+  { id: "ale-anecdotes", title: "Ale and Anecdotes", category: "tavern", tags: ["tavern", "inn"], yt: "u2jLHdpo2AQ", source: "Bardify" },
+  { id: "shady-tavern", title: "Shady Tavern", category: "tavern", tags: ["tavern", "shady", "tense"], yt: "iQiUgrHqB9w", source: "Bardify" },
   { id: "peaceful-village", title: "Peaceful Village", category: "town", tags: ["phandalin", "town", "village"], yt: "jyYnGLh5vL0", source: "Bardify" },
   { id: "large-city", title: "Large City", category: "town", tags: ["city", "neverwinter"], yt: "ddMSMwKQkKI", source: "Bardify" },
+  { id: "phandalin-streets", title: "Phandalin Streets", category: "town", tags: ["phandalin", "town", "lmop", "doip"], yt: "pOPLDhKn9cg", source: "Sword Coast Soundscapes" },
 
   // 荒野旅行
   { id: "wilderness", title: "Wilderness Travel", category: "travel", tags: ["travel", "forest", "road", "lmop"], yt: "bLZApMsorjA", source: "Bardify" },
@@ -11,6 +16,7 @@ const TRACKS = [
   { id: "tense-path", title: "Tense Path", category: "travel", tags: ["travel", "tense", "mystery"], yt: "fv_7EurNAss", source: "Bardify" },
   { id: "mysterious-forest", title: "Mysterious Forest", category: "travel", tags: ["forest", "mystery"], yt: "4Y6n-1XQSfE", source: "Bardify" },
   { id: "forest-amb", title: "Forest Ambience", category: "travel", tags: ["forest", "ambience"], yt: "F8bYaMoQ2sM", source: "Bardify" },
+  { id: "adventure", title: "The Adventure Begins", category: "travel", tags: ["intro", "adventure"], yt: "Jikm8CCRbdM", source: "Bardify" },
 
   // 山區 / 寒冷 (DoIP)
   { id: "frostlands", title: "Desolate Frostlands", category: "mountain", tags: ["mountain", "cold", "icespire", "doip"], yt: "eNDr0IAw2po", source: "Bardify" },
@@ -22,17 +28,22 @@ const TRACKS = [
   { id: "dark-cave", title: "Dark, Dank Cave", category: "dungeon", tags: ["cave", "dark", "lmop"], yt: "E72yDpAfrgY", source: "Sword Coast Soundscapes" },
   { id: "wave-echo", title: "Wave Echo Cave", category: "dungeon", tags: ["cave", "wave echo", "lmop"], yt: "Z-pbILkmhMk", source: "Sword Coast Soundscapes" },
   { id: "generic-dungeon", title: "Generic Dungeon", category: "dungeon", tags: ["dungeon", "cave"], yt: "wScEFaoqwPM", source: "Sword Coast Soundscapes" },
+  { id: "creepy-dungeon", title: "Creepy Dungeon", category: "dungeon", tags: ["dungeon", "creepy", "tense"], yt: "KZNoPUbaVnk", source: "Bardify" },
+  { id: "abandoned-ruins", title: "Abandoned Ruins", category: "dungeon", tags: ["ruins", "dungeon", "lmop"], yt: "205meIww0zg", source: "Bardify" },
+  { id: "lost-temple", title: "Lost Temple Ruins", category: "dungeon", tags: ["ruins", "temple"], yt: "cr7MHs7DyXA", source: "Bardify" },
 
   // 戰鬥
   { id: "ambush", title: "Ambush!", category: "combat", tags: ["combat", "battle", "goblin"], yt: "8Q7cioftmKs", source: "Bardify" },
   { id: "epic-fight", title: "Epic Fight", category: "combat", tags: ["combat", "boss", "intense"], yt: "H8n7K3jABhI", source: "Bardify" },
   { id: "low-combat", title: "Low Level Combat", category: "combat", tags: ["combat", "easy"], yt: "2GX9lVHfnxs", source: "Bardify" },
+  { id: "dungeon-boss", title: "Dungeon Boss", category: "combat", tags: ["combat", "boss", "dungeon"], yt: "tBI63CPbW9c", source: "Bardify" },
+  { id: "final-boss", title: "Final Boss", category: "combat", tags: ["combat", "boss", "epic"], yt: "mWT11B_-sjQ", source: "Bardify" },
+  { id: "chase", title: "Chase", category: "combat", tags: ["combat", "chase", "tense"], yt: "fq8OSrIUST4", source: "Bardify" },
 
   // 懸疑 / 休息
   { id: "suspense", title: "Suspense", category: "tension", tags: ["suspense", "tense", "mystery"], yt: "EApZmmYg_oQ", source: "Bardify" },
   { id: "mystery", title: "Investigating a Mystery", category: "tension", tags: ["mystery", "investigate"], yt: "7wBzL62Va1k", source: "Bardify" },
   { id: "long-rest", title: "Long Rest", category: "rest", tags: ["rest", "camp", "calm"], yt: "7T3SU4Ht1Yw", source: "Bardify" },
-  { id: "adventure", title: "The Adventure Begins", category: "travel", tags: ["intro", "adventure"], yt: "Jikm8CCRbdM", source: "Bardify" },
 ];
 
 const CATEGORIES = [
@@ -46,6 +57,7 @@ const CATEGORIES = [
   { id: "rest", name: "休息 / 露營", desc: "長休、營火", icon: "🔥" },
   { id: "lmop", name: "LMoP 專區", desc: "凡戴爾的失落礦坑", icon: "⛏️" },
   { id: "doip", name: "DoIP 專區", desc: "冰塔峰之龍", icon: "🐉" },
+  { id: "favorites", name: "我的收藏", desc: "你收藏的曲目", icon: "⭐" },
 ];
 
 let currentView = "home";
@@ -59,6 +71,37 @@ const nowPlaying = document.getElementById("now-playing");
 const stopBtn = document.getElementById("stop-btn");
 const loopCheckbox = document.getElementById("loop");
 const ytContainer = document.getElementById("youtube-container");
+const favBtn = document.getElementById("fav-btn");
+
+function getFavorites() {
+  return JSON.parse(localStorage.getItem("dnd-favs") || "[]");
+}
+
+function saveFavorites(favs) {
+  localStorage.setItem("dnd-favs", JSON.stringify(favs));
+}
+
+function isFavorite(id) {
+  return getFavorites().includes(id);
+}
+
+function toggleFavorite(id) {
+  let favs = getFavorites();
+  if (favs.includes(id)) {
+    favs = favs.filter(f => f !== id);
+  } else {
+    favs.push(id);
+  }
+  saveFavorites(favs);
+  // Re-render current view if needed
+  if (currentView === "category" && currentCategory === "favorites") {
+    showCategory("favorites");
+  } else if (currentView === "category") {
+    showCategory(currentCategory);
+  } else if (currentView === "search") {
+    handleSearch();
+  }
+}
 
 function renderHome() {
   currentView = "home";
@@ -82,6 +125,10 @@ function renderHome() {
 }
 
 function getTracksForCategory(catId) {
+  if (catId === "favorites") {
+    const favIds = getFavorites();
+    return TRACKS.filter(t => favIds.includes(t.id));
+  }
   if (catId === "lmop") {
     return TRACKS.filter(t => t.tags.includes("lmop") || t.tags.includes("phandalin") || t.tags.includes("wave echo"));
   }
@@ -91,37 +138,49 @@ function getTracksForCategory(catId) {
   return TRACKS.filter(t => t.category === catId);
 }
 
-function showCategory(catId) {
-  currentView = "category";
-  currentCategory = catId;
-  const cat = CATEGORIES.find(c => c.id === catId);
-  const tracks = getTracksForCategory(catId);
-
-  let html = `<button class="back-btn">← 返回分類</button>`;
-  html += `<h2 class="section-title">${cat ? cat.icon + " " + cat.name : catId}</h2>`;
-  html += `<div class="tracks">`;
+function renderTrackList(tracks, title, showBack = true) {
+  let html = showBack ? `<button class="back-btn">← 返回</button>` : "";
+  html += `<h2 class="section-title">${title}</h2><div class="tracks">`;
 
   if (tracks.length === 0) {
     html += `<p>這個分類暫時沒有曲目。</p>`;
   } else {
     tracks.forEach(track => {
+      const favIcon = isFavorite(track.id) ? "⭐" : "☆";
       html += `
         <div class="track">
           <div class="track-info">
             <h4>${track.title}</h4>
             <span>${track.source}</span>
           </div>
-          <button data-id="${track.id}">播放</button>
+          <div style="display:flex; gap:8px;">
+            <button class="fav-toggle" data-id="${track.id}" style="background:#333; color:var(--accent); border:1px solid var(--border); padding:8px 10px; border-radius:6px; cursor:pointer;">${favIcon}</button>
+            <button class="play-btn" data-id="${track.id}">播放</button>
+          </div>
         </div>`;
     });
   }
   html += `</div>`;
   main.innerHTML = html;
 
-  document.querySelector(".back-btn").addEventListener("click", renderHome);
-  document.querySelectorAll(".track button").forEach(btn => {
+  if (showBack) {
+    document.querySelector(".back-btn").addEventListener("click", renderHome);
+  }
+  document.querySelectorAll(".play-btn").forEach(btn => {
     btn.addEventListener("click", () => playTrack(btn.dataset.id));
   });
+  document.querySelectorAll(".fav-toggle").forEach(btn => {
+    btn.addEventListener("click", () => toggleFavorite(btn.dataset.id));
+  });
+}
+
+function showCategory(catId) {
+  currentView = "category";
+  currentCategory = catId;
+  const cat = CATEGORIES.find(c => c.id === catId);
+  const tracks = getTracksForCategory(catId);
+  const title = cat ? `${cat.icon} ${cat.name}` : catId;
+  renderTrackList(tracks, title);
 }
 
 function playTrack(trackId) {
@@ -131,7 +190,6 @@ function playTrack(trackId) {
   currentTrack = track;
   nowPlaying.textContent = `${track.title} · ${track.source}`;
 
-  // Clear previous
   ytContainer.innerHTML = "";
 
   const iframe = document.createElement("iframe");
@@ -153,37 +211,13 @@ function handleSearch() {
     renderHome();
     return;
   }
-
+  currentView = "search";
   const results = TRACKS.filter(t =>
     t.title.toLowerCase().includes(q) ||
     t.tags.some(tag => tag.includes(q)) ||
     t.source.toLowerCase().includes(q)
   );
-
-  let html = `<button class="back-btn">← 返回</button>`;
-  html += `<h2 class="section-title">搜尋結果：${q}</h2><div class="tracks">`;
-
-  if (results.length === 0) {
-    html += `<p>沒有找到相關曲目。</p>`;
-  } else {
-    results.forEach(track => {
-      html += `
-        <div class="track">
-          <div class="track-info">
-            <h4>${track.title}</h4>
-            <span>${track.source} · ${track.category}</span>
-          </div>
-          <button data-id="${track.id}">播放</button>
-        </div>`;
-    });
-  }
-  html += `</div>`;
-  main.innerHTML = html;
-
-  document.querySelector(".back-btn").addEventListener("click", renderHome);
-  document.querySelectorAll(".track button").forEach(btn => {
-    btn.addEventListener("click", () => playTrack(btn.dataset.id));
-  });
+  renderTrackList(results, `搜尋結果：${q}`);
 }
 
 // Events
@@ -192,6 +226,7 @@ stopBtn.addEventListener("click", stopPlayer);
 loopCheckbox.addEventListener("change", () => {
   if (currentTrack) playTrack(currentTrack.id);
 });
+favBtn.addEventListener("click", () => showCategory("favorites"));
 
 // Init
 renderHome();
